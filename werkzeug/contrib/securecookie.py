@@ -100,7 +100,7 @@ from werkzeug._internal import _date_to_unix
 from werkzeug.contrib.sessions import ModificationTrackingDict
 from werkzeug.security import safe_str_cmp
 from werkzeug._compat import to_native
-
+import codecs
 
 class UnquoteError(Exception):
 
@@ -152,7 +152,7 @@ class SecureCookie(ModificationTrackingDict):
         # explicitly convert it into a bytestring because python 2.6
         # no longer performs an implicit string conversion on hmac
         if secret_key is not None:
-            secret_key = bytes(secret_key, 'utf-8')
+            secret_key = str(secret_key, 'utf-8')
         self.secret_key = secret_key
         self.new = new
 
@@ -217,7 +217,7 @@ class SecureCookie(ModificationTrackingDict):
         if expires:
             self['_expires'] = _date_to_unix(expires)
         result = []
-        mac = hmac(self.secret_key, None, self.hash_method)
+        mac = hmac(codecs.encode(self.secret_key), None, self.hash_method)
         for key, value in sorted(self.items()):
             result.append(('%s=%s' % (
                 url_quote_plus(key),
